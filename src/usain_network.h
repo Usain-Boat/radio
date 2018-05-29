@@ -14,6 +14,8 @@ class UsainNetwork
 public:
     UsainNetwork();
 
+    bool init();
+
     void send(const UsainNetworkMessage &message);
 
     void register_message_received(const Callback<void(const UsainNetworkMessage &)> &callback);

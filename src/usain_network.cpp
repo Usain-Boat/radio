@@ -9,58 +9,60 @@
 //SX1276_Radio UsainNetwork::_radio(PA_7, PA_6, PA_5, PD_14, PG_9, PF_12, PG_14, PF_15, PE_13, PF_14, PE_11);
 
 UsainNetwork::UsainNetwork() :
-        _radio(D11, D12, D13, D10, D0, D8, D1, D2, NC, NC, NC),
+        _radio(PA_7, PA_6, PA_5, PD_14, PG_9, PF_12, PG_14, PF_15, PE_13, PF_14, PE_11),
         n_rx_callbacks(0),
         n_tx_callbacks(0)
 {
-    printf("-- Starting network ");
 
-    if(!_radio.self_test())
-    {
-        printf("[FAILED]\n");
-        error("Error: rfm95 connection error");
-    }
+}
 
-    printf("[DONE]\n");
+bool UsainNetwork::init()
+{
+  if(!_radio.self_test())
+  {
+    return false;
+  }
 
-    events.rx_done = callback(this, &UsainNetwork::rx_done_handler);
-    events.tx_done = callback(this, &UsainNetwork::tx_done_handler);
+  events.rx_done = callback(this, &UsainNetwork::rx_done_handler);
+  events.tx_done = callback(this, &UsainNetwork::tx_done_handler);
 
-    _radio.init_radio(&events);
+  _radio.init_radio(&events);
 
-    _radio.set_channel(868000000);
+  _radio.set_channel(868000000);
 
-    _radio.set_rx_config(MODEM_FSK, // mode,
-                         50000, // bw
-                         50000, // dr
-                         0, // cr
-                         50000, // afc
-                         5, // preemb
-                         0, // timout
-                         false, // len
-                         0, // payl len
-                         true, // crc
-                         false, // frq hop
-                         0, // hop p
-                         false, // iq inv
-                         true); // cont
+  _radio.set_rx_config(MODEM_FSK, // mode,
+                       50000, // bw
+                       50000, // dr
+                       0, // cr
+                       50000, // afc
+                       5, // preemb
+                       0, // timout
+                       false, // len
+                       0, // payl len
+                       true, // crc
+                       false, // frq hop
+                       0, // hop p
+                       false, // iq inv
+                       true); // cont
 
-    _radio.set_tx_config(MODEM_FSK, // modem
-                         14, // power
-                         25000, // fdev
-                         0, // bw
-                         50000, // dr
-                         0, // cr
-                         5, // preemb
-                         false, // len
-                         true, // crc
-                         false, // freq hop
-                         0, // hop p
-                         false, // iq
-                         3000); // timeout
+  _radio.set_tx_config(MODEM_FSK, // modem
+                       14, // power
+                       25000, // fdev
+                       0, // bw
+                       50000, // dr
+                       0, // cr
+                       5, // preemb
+                       false, // len
+                       true, // crc
+                       false, // freq hop
+                       0, // hop p
+                       false, // iq
+                       3000); // timeout
 
-    // put radio in rx continuous mode
-    _radio.receive(0);
+  // put radio in rx continuous mode
+  _radio.receive(0);
+
+  return true;
 }
 
 void UsainNetwork::send(const UsainNetworkMessage &message)

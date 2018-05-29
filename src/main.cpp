@@ -3,32 +3,37 @@
 
 void tx_handler()
 {
-    printf("transmission done\n");
+  printf("transmission done\n");
 }
 
 void rx_handler(const UsainNetworkMessage &message)
 {
-    printf("received type: %d\n", message.get_type());
-    printf("received message: %s\n", message.get_data());
+  printf("received type: %d\n", message.get_type());
+  printf("received message: %s\n", message.get_data());
 }
 
 int main()
 {
-    UsainNetwork network;
+  UsainNetwork network;
 
-    network.register_message_received(callback(rx_handler));
-    network.register_message_send(callback(tx_handler));
+  if (!network.init())
+  {
+    error("error: no radio connected\n");
+  }
 
-    while (true)
-    {
-        // receiver example, uncomment for transmitter
-        UsainNetworkMessage m;
+  network.register_message_received(callback(rx_handler));
+  network.register_message_send(callback(tx_handler));
 
-        m.set_type(UsainNetworkMessage::POST);
-        m.set_data((uint8_t *)"this is a test", 14);
+  while (true)
+  {
+    // receiver example, uncomment for transmitter
+    UsainNetworkMessage m;
 
-        network.send(m);
+    m.set_type(UsainNetworkMessage::POST);
+    m.set_data((uint8_t *) "this is a test", 14);
 
-        wait(2.0);
-    }
+    network.send(m);
+
+    wait(1.0);
+  }
 }

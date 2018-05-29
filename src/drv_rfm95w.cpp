@@ -2004,8 +2004,6 @@ void SX1276_Radio::handle_dio0_irq()
                                                              RF_IRQFLAGS1_SYNCADDRESSMATCH);
                             write_to_register(REG_IRQFLAGS2, RF_IRQFLAGS2_FIFOOVERRUN);
 
-                            printf("crc error\n");
-
                             if (_rf_settings.fsk.rx_continuous == false)
                             {
                                 rx_timeout_sync_word.detach();

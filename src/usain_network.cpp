@@ -72,15 +72,15 @@ void UsainNetwork::send(const UsainNetworkMessage &message)
 
   _radio.lock();
 
-  if(_radio.perform_carrier_sense(MODEM_FSK, 868000000, -80, 50))
-  {
-    _radio.send(buffer, packet_size);
-  }
+  while (!_radio.perform_carrier_sense(MODEM_FSK, 868000000, -80, 50));
+
+  _radio.send(buffer, packet_size);
 
   _radio.unlock();
 }
 
-void UsainNetwork::register_message_received(const Callback<void(const UsainNetworkMessage &, UsainNetwork *network)> &callback)
+void UsainNetwork::register_message_received(const Callback<void(const UsainNetworkMessage &,
+                                                                 UsainNetwork *network)> &callback)
 {
   if (n_rx_callbacks > 32)
     error("Network RX callback overflow\n");

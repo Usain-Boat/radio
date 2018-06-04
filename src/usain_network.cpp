@@ -80,7 +80,7 @@ void UsainNetwork::send(const UsainNetworkMessage &message)
   _radio.unlock();
 }
 
-void UsainNetwork::register_message_received(const Callback<void(const UsainNetworkMessage &)> &callback)
+void UsainNetwork::register_message_received(const Callback<void(const UsainNetworkMessage &, UsainNetwork *network)> &callback)
 {
   if (n_rx_callbacks > 32)
     error("Network RX callback overflow\n");
@@ -102,7 +102,7 @@ void UsainNetwork::rx_done_handler(uint8_t *payload, uint16_t size, int16_t rssi
 
   for (int i = 0; i < n_rx_callbacks; i++)
   {
-    _rx_callbacks[i].call(msg);
+    _rx_callbacks[i].call(msg, this);
   }
 }
 

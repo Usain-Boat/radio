@@ -9,56 +9,74 @@
 
 class UsainNetworkMessage
 {
-public:
-    static const int         MAX_PACK_SIZE = 256;
+ public:
+  static const int MAX_PACK_SIZE = 256;
 
-    typedef enum {
-        GET,
-        POST,
-        RESP,
-        ERR
-    } message_type_t;
+  typedef struct
+  {
+    char name[32];
+    char value[16];
+  } paramater_t;
 
-    typedef struct
-    {
-        uint8_t  type;
-        uint16_t sequence;
-        uint8_t  source;
-        uint8_t  destination;
-        uint8_t  data_size;
-        uint8_t  data[246];
-    }__attribute__((packed)) message_t;
+  typedef enum
+  {
+    GET,
+    POST,
+    RESP,
+    ERR
+  } message_type_t;
 
-    UsainNetworkMessage();
+  typedef struct
+  {
+    uint8_t type;
+    uint16_t sequence;
+    uint8_t source;
+    uint8_t destination;
+    uint8_t data_size;
+    uint8_t data[246];
+  }__attribute__((packed)) message_t;
 
-    explicit UsainNetworkMessage(uint8_t *src, uint8_t size);
+  UsainNetworkMessage();
 
-    message_t get() const;
+  explicit UsainNetworkMessage(uint8_t *src, uint8_t size);
 
-    message_type_t get_type() const;
+  message_t get() const;
 
-    uint8_t get_source() const;
+  message_type_t get_type() const;
 
-    uint8_t get_destination() const;
+  uint8_t get_source() const;
 
-    uint8_t get_data_size() const;
+  uint8_t get_destination() const;
 
-    const uint8_t *get_data() const;
+  uint8_t get_data_size() const;
 
-    void set_type(UsainNetworkMessage::message_type_t type);
+  const uint8_t *get_data() const;
 
-    void set_source(uint8_t source);
+  void set_type(UsainNetworkMessage::message_type_t type);
 
-    void set_destination(uint8_t destination);
+  void set_source(uint8_t source);
 
-    void set_data(uint8_t data[], uint8_t size);
+  void set_destination(uint8_t destination);
 
-    void from_byte_array(uint8_t src[], uint8_t size);
+  void set_data(uint8_t data[], uint8_t size);
 
-    uint8_t to_byte_array(uint8_t dst[]) const;
+  // used for GET messages
+  void add_parameter(char *name);
 
-private:
-    message_t _current_message;
+  void add_parameter(char *name, char *value);
+
+  void add_parameter(char *name, int value);
+
+  void add_parameter(char *name, float value);
+
+  int get_paramaters(UsainNetworkMessage::paramater_t *dest, uint8_t size);
+
+  void from_byte_array(uint8_t src[], uint8_t size);
+
+  uint8_t to_byte_array(uint8_t dst[]) const;
+
+ private:
+  message_t _current_message;
 };
 
 #endif //RADIO_USAIN_NETWORK_MESSAGE_H

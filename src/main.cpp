@@ -30,9 +30,9 @@ int main()
     UsainNetworkMessage m;
 
     m.set_type(UsainNetworkMessage::POST);
-    m.set_data((uint8_t *) "this is a test", 14);
+    m.set_data((uint8_t *) "ping", 4);
 
-//    network.send(m);
+    network.send(m);
 
     wait(1.0);
   }

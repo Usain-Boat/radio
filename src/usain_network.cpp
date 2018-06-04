@@ -9,16 +9,16 @@
 //SX1276_Radio UsainNetwork::_radio(PA_7, PA_6, PA_5, PD_14, PG_9, PF_12, PG_14, PF_15, PE_13, PF_14, PE_11);
 
 UsainNetwork::UsainNetwork() :
-        _radio(PA_7, PA_6, PA_5, PD_14, PG_9, PF_12, PG_14, PF_15, PE_13, PF_14, PE_11),
-        n_rx_callbacks(0),
-        n_tx_callbacks(0)
+    _radio(PA_7, PA_6, PA_5, PD_14, PG_9, PF_12, PG_14, PF_15, PE_13, PF_14, PE_11),
+    n_rx_callbacks(0),
+    n_tx_callbacks(0)
 {
 
 }
 
 bool UsainNetwork::init()
 {
-  if(!_radio.self_test())
+  if (!_radio.self_test())
   {
     return false;
   }
@@ -67,46 +67,51 @@ bool UsainNetwork::init()
 
 void UsainNetwork::send(const UsainNetworkMessage &message)
 {
-    uint8_t buffer[UsainNetworkMessage::MAX_PACK_SIZE];
-    uint8_t packet_size = message.to_byte_array(buffer);
+  uint8_t buffer[UsainNetworkMessage::MAX_PACK_SIZE];
+  uint8_t packet_size = message.to_byte_array(buffer);
 
-    _radio.lock();
+  _radio.lock();
+
+  if(_radio.perform_carrier_sense(MODEM_FSK, 868000000, -80, 50))
+  {
     _radio.send(buffer, packet_size);
-    _radio.unlock();
+  }
+
+  _radio.unlock();
 }
 
 void UsainNetwork::register_message_received(const Callback<void(const UsainNetworkMessage &)> &callback)
 {
-    if (n_rx_callbacks > 32)
-        error("Network RX callback overflow\n");
+  if (n_rx_callbacks > 32)
+    error("Network RX callback overflow\n");
 
-    _rx_callbacks[n_rx_callbacks++] = callback;
+  _rx_callbacks[n_rx_callbacks++] = callback;
 }
 
 void UsainNetwork::register_message_send(const Callback<void()> &callback)
 {
-    if (n_tx_callbacks > 32)
-        error("Network TX callback overflow\n");
+  if (n_tx_callbacks > 32)
+    error("Network TX callback overflow\n");
 
-    _tx_callbacks[n_tx_callbacks++] = callback;
+  _tx_callbacks[n_tx_callbacks++] = callback;
 }
 
 void UsainNetwork::rx_done_handler(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr)
 {
-    UsainNetworkMessage msg(payload, size);
+  UsainNetworkMessage msg(payload, size);
 
-    for (int i = 0; i < n_rx_callbacks; i++)
-    {
-        _rx_callbacks[i].call(msg);
-    }
+  for (int i = 0; i < n_rx_callbacks; i++)
+  {
+    _rx_callbacks[i].call(msg);
+  }
 }
 
 void UsainNetwork::tx_done_handler()
 {
-    _radio.receive(0);
+  _radio.receive(0);
 
-    for (int i = 0; i < n_tx_callbacks; i++)
-    {
-        _tx_callbacks[i].call();
-    }
+  for (int i = 0; i < n_tx_callbacks; i++)
+  {
+    _tx_callbacks[i].call();
+  }
 }
